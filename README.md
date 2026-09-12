@@ -1,57 +1,65 @@
-# 🏫 Branch Administration Automation Suite (Joy English)
-> 專為連鎖英語分校打造的行政自動化排班與交接表生成系統，整合 A3 Word 班表解析引擎與 B5 雙月輪值動態順延產生器。
-
-[![Java](https://img.shields.io/badge/Java-17-orange.svg)]()
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen.svg)]()
-[![Apache POI](https://img.shields.io/badge/Apache%20POI-5.2.5-blue.svg)]()
-[![Architecture](https://img.shields.io/badge/Architecture-Layered%20MVC-lightgrey.svg)]()
+# 🏫 補習班分校行政自動化工具箱
+> 專為分校行政排班設計的自動化小工具，解決手動排版耗時、複製貼上容易出錯的痛點。
 
 ---
 
-## 📌 專案背景與解決痛點
+## 📌 為什麼做這個工具？
 
-分校行政主管每週與每雙月需花費數小時手動編排助教交接表與菁英班輪值表。傳統作業面臨兩大核心瓶頸：
-1. **排版耗時且易錯**：手動將 Excel 班表轉錄為 Word 時，常因寒暑假時段異動（14:00 起始 vs 16:00 起始）及休假人員替換，導致版面溢出或打叉劃記錯位。
-2. **輪值順延連動繁瑣**：雙月輪值遇到國定假日或臨時調班時，需逐日手動重新推算後續同仁輪替順序。
+每週排班與交接是補習班行政很花時間的工作：
+1. **交接表排版麻煩**：每次都要把排班 Excel 轉抄到 Word，寒暑假跟平常學期的上班時段又不同，手動調整常造成表格跑版、跨頁，或是未上班時段打叉劃記劃錯。
+2. **輪值表順延手動改到眼花**：雙月輪值只要遇到連假或請假，後面整個月的人員順序都要手動一個個往後改，非常容易漏掉。
 
-本系統透過 **Spring Boot MVC** 搭配 **Apache POI 底層 XML 操作**，實現上傳 Excel 瞬間原生生成符合印刷規格之 A3 Word 交接表，並提供前端可視化 B5 雙月自動順延排印機制。
+這個專案把這兩項流程完全自動化：**上傳 Excel 就能一鍵做出不跑版的 A3 Word 交接表**，以及**按右鍵標記放假、名單就會自動往後順延的 B5 輪值表**。
 
 ---
 
-## 📸 成果展示 (Demo)
+## 📸 功能展示 (Demo)
 
-### 1. 系統功能導航中心
-<!-- 請在此放主選單 index.html 截圖 -->
-![Main Menu](demo/main_menu.png)
+### 1. 功能導航首頁
+點開系統後會看到清楚的選單，直接點選要使用的功能：
 
-### 2. A3 助教交接表自動化生成系統
-<!-- 請在此放交接表操作流程 GIF 或生成的 Word 預覽截圖 -->
-| 操作介面 (支援學期/寒暑假模式切換) | 原生產出之 A3 Word 交接表 (排版精確控制) |
+<!-- 放在這裡：首頁 index.html 截圖 -->
+![功能選單](demo/main_menu.png)
+
+---
+
+### 2. 助教工作交接表（自動產出 A3 Word）
+* **操作方式**：上傳每月的排班 Excel，選擇週次與模式（平常學期 / 寒暑假），按下一鍵生成。
+* **自動處理的細節**：
+  * **時段自適應**：平常學期從 16:00 開始，寒暑假自動切換為 14:00 起始，表格列高會自動縮放，保證 **100% 剛好一張 A3 印出不分頁**。
+  * **防呆過濾**：自動忽略標記「(校務)」、「(教務)」、「請假」的人員，並將「兩點預備班」自動優先排入。
+  * **自動打叉**：還沒到上班時間的格子，自動劃上標準對角線打叉。
+
+<!-- 放在這裡：左邊放網頁操作畫面截圖，右邊放產出的 Word 成果 -->
+| 網頁操作介面 | 實際產出的 A3 Word 表格 |
 | :---: | :---: |
-| ![Handover UI](demo/handover_ui.png) | ![A3 Word Result](demo/handover_result.png) |
-
-* **特色**：精準計算儲存格寬度（DXA），底層注入 OpenXML 結構實現跨格對角劃記（Diagonal Borders）與 100% 單頁自動高度防爆限制。
-
-### 3. B5 雙月菁英班輪值表產生器
-<!-- 請在此放右鍵點擊放假、名額自動順延的 GIF 動畫 -->
-![Roster Demo](demo/roster_demo.gif)
-
-* **特色**：右鍵即時切換「放假 / 值班」，演算法自動動態重算後續週期的循環指針（Pointer-shifting）；CSS Print 精確鎖定 B5 Portrait 單頁。
+| ![操作介面](demo/handover_ui.png) | ![Word結果](demo/handover_result.png) |
 
 ---
 
-## 🛠 技術棧與架構設計
+### 3. 雙月輪值表產生器（放假自動順延 + B5 列印）
+* **操作方式**：輸入週一到週五的輪值名單與起始月份，自動排好兩個月份的表格。
+* **核心亮點（自動順延）**：
+  * 遇到國定假日或請假，**在格子上點一下滑鼠右鍵**切換成「放假」。
+  * 系統會**自動把原本該天值班的人順延到下一次**，不用手動一筆筆修改。
+  * 版面完全依照 B5 紙張規格設計，瀏覽器直接按「列印」即可完美輸出。
 
-### 後端架構 (Layered MVC)
-* **Core Framework**: Spring Boot 3.2.5 (Java 17)
-* **Document Engine**: Apache POI 5.2.5 (`poi-ooxml`, `poi-ooxml-full`)
-* **Data Persistence**: Jackson JSON (`fixed_tasks.json`, `roster_config.json`)
-* **Web Server**: Embedded Tomcat (Spring Web Starter)
+<!-- 放在這裡：右鍵點擊放假、後面名字自動往後跳的 GIF 動圖 -->
+![輪值表操作動態展示](demo/roster_demo.gif)
 
-```text
-com.handover.handover_web
-├── HandoverWebApplication.java   // 容器啟動進入點
-├── HandoverController.java       // 交接表 RESTful 路由與檔案串流
-├── HandoverService.java          // Excel 動態解析與 Word OOXML 排版核心
-├── RosterController.java         // 輪值設定持久化 API
-└── RosterService.java            // 輪值配置 JSON 讀寫
+---
+
+## ⚙️ 貼心設計（隨開隨用）
+
+為了讓分校的行政同仁不需要懂任何程式設定也能直接用：
+* **免安裝環境**：已將執行環境打包進資料夾，電腦沒裝過 Java 也能直接跑。
+* **點兩下啟動**：點擊 `啟動系統.bat` 就會自動在背景執行並開啟瀏覽器。
+* **自動記憶設定**：每週的固定常態事項、輪值人員名單，修改後都會自動存檔，下次打開不必重新輸入。
+
+---
+
+## 🛠 使用工具與技術
+
+* **後端核心**：Java / Spring Boot（處理檔案上傳、資料保存與系統運行）
+* **文件生成**：Apache POI（精確控制 Word 儲存格寬度、列高、格線與打叉）
+* **前端介面**：HTML / CSS / JavaScript（簡單直覺的操作介面與列印排版）
